@@ -1,10 +1,10 @@
-# Stage outputs (per-run artifacts, not part of the workspace definition)
+# Stage outputs (per-run artifacts, not part of the workbench definition)
 **/stages/*/output/*
 !**/stages/*/output/.gitkeep
 
-# Workspace-builder stage outputs (intermediate build artifacts)
-workspaces/workspace-builder/stages/*/output/*
-!workspaces/workspace-builder/stages/*/output/.gitkeep
+# Workbench-builder stage outputs (intermediate build artifacts)
+workbenches/workbench-builder/stages/*/output/*
+!workbenches/workbench-builder/stages/*/output/.gitkeep
 
 # Claude Code local settings
 .claude/

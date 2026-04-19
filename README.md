@@ -30,14 +30,14 @@ Five ideas, each borrowed from established practice.
 
 **Every output is an edit surface.** The intermediate output of each stage is a file a human can open, read, edit, and save before the next stage runs. The system picks up whatever the human left there.
 
-**Configure the factory, not the product.** A workspace is set up once with the user's preferences, brand, style, and structural decisions. After that, each run of the pipeline produces a new deliverable using the same configuration.
+**Configure the factory, not the product.** A workbench is set up once with the user's preferences, brand, style, and structural decisions. After that, each run of the pipeline produces a new deliverable using the same configuration.
 
 ## How It Works
 
 Agents read down five layers and stop when they have what they need.
 
 ```
-Layer 0: CLAUDE.md           "Where am I?"            Always loaded (~800 tokens)
+Layer 0: AGENTS.md           "Where am I?"            Always loaded (~800 tokens)
 Layer 1: CONTEXT.md          "Where do I go?"          Read on entry (~300 tokens)
 Layer 2: Stage CONTEXT.md    "What do I do?"            Read per-task (~200-500 tokens)
 Layer 3: Reference material  "What rules apply?"        Loaded selectively (varies)
@@ -52,10 +52,10 @@ A rendering agent might only need Layers 0 through 2. A script-writing agent rea
 
 Contrast this with a monolithic approach where all stage instructions, all reference files, and all prior outputs are loaded into a single prompt. That approach can easily reach 30,000 to 50,000 tokens, pushing into the range where models start losing track of what matters.
 
-A workspace looks like this:
+A workbench looks like this:
 
 ```
-workspace/
+workbench/
   CONTEXT.md               # Layer 1: task routing
   stages/
     01-research/
@@ -119,11 +119,11 @@ If stage 3 produces bad output, you know exactly where to look. You can read the
 
 ## Portability
 
-A workspace is a folder. It can be copied to another machine, committed to Git, emailed as a zip file, or synced through any cloud storage service. It carries its own prompts, its own context structure, its own stage definitions. There is no server to configure, no environment to replicate, no deployment step.
+A workbench is a folder. It can be copied to another machine, committed to Git, emailed as a zip file, or synced through any cloud storage service. It carries its own prompts, its own context structure, its own stage definitions. There is no server to configure, no environment to replicate, no deployment step.
 
 Every change to a prompt, every edit to a stage output, every configuration adjustment is diffable and reversible through standard version control. Stage outputs can be committed after each run, creating a version history of the entire pipeline's behavior over time.
 
-If you build a workspace for a client's weekly reporting workflow, handing it over means copying a folder. The client can run it, edit the prompts to match their evolving needs, and adjust stages without involving a developer.
+If you build a workbench for a client's weekly reporting workflow, handing it over means copying a folder. The client can run it, edit the prompts to match their evolving needs, and adjust stages without involving a developer.
 
 ## Where This Works
 
@@ -152,37 +152,37 @@ It is worth distinguishing ICM from Anthropic's Model Context Protocol (MCP). MC
 ## Getting Started
 
 1. Clone this repo
-2. `cd workspaces/script-to-animation` (or any workspace)
+2. `cd workbenches/script-to-animation` (or any workbench)
 3. Open [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
 4. Type `setup`
 5. Answer the onboarding questions -- all at once, one pass
-6. Your answers populate across the workspace files
+6. Your answers populate across the workbench files
 7. Start producing -- give the agent a topic and walk through the stages
 
 Each stage produces an output file. You can edit that file before moving on. The next stage reads whatever you left there.
 
-## Available Workspaces
+## Available Workbenches
 
-| Workspace | What it does | Stages |
+| Workbench | What it does | Stages |
 |-----------|-------------|--------|
-| [script-to-animation](workspaces/script-to-animation/) | Content idea through script writing, animation spec, and Remotion code | 3 |
-| [course-deck-production](workspaces/course-deck-production/) | Unstructured material (PDFs, papers, notes) into polished PowerPoint slide decks | 5 |
-| [workspace-builder](workspaces/workspace-builder/) | Build a new ICM workspace for any domain | 5 |
+| [script-to-animation](workbenches/script-to-animation/) | Content idea through script writing, animation spec, and Remotion code | 3 |
+| [course-deck-production](workbenches/course-deck-production/) | Unstructured material (PDFs, papers, notes) into polished PowerPoint slide decks | 5 |
+| [workbench-builder](workbenches/workbench-builder/) | Build a new ICM workbench for any domain | 5 |
 
-## Build Your Own Workspace
+## Build Your Own Workbench
 
-The workspace-builder is a workspace whose output is a new workspace. It follows ICM conventions to produce workspaces that follow ICM conventions.
+The workbench-builder is a workbench whose output is a new workbench. It follows ICM conventions to produce workbenches that follow ICM conventions.
 
-1. `cd workspaces/workspace-builder`
+1. `cd workbenches/workbench-builder`
 2. Type `setup` to describe your domain
 3. Walk through the five stages: discovery, mapping, scaffolding, questionnaire design, and validation
-4. The output is a complete, ready-to-use workspace
+4. The output is a complete, ready-to-use workbench
 
 The pattern transfers to any repeatable multi-step workflow: report generation, audit procedures, curriculum development, code documentation, or any process where someone currently does the same sequence of steps with different input material each time.
 
 ## The Conventions
 
-Every workspace follows 15 patterns defined in [`_core/CONVENTIONS.md`](_core/CONVENTIONS.md). These are old ideas -- separation of concerns, one-way dependencies, canonical sources, pipe-and-filter architecture -- applied to the specific problem of structuring context for AI agents.
+Every workbench follows 17 patterns defined in [`_core/CONVENTIONS.md`](_core/CONVENTIONS.md). These are old ideas -- separation of concerns, one-way dependencies, canonical sources, pipe-and-filter architecture -- applied to the specific problem of structuring context for AI agents.
 
 ### Architecture
 
@@ -191,6 +191,7 @@ Every workspace follows 15 patterns defined in [`_core/CONVENTIONS.md`](_core/CO
 - **One-way references** -- If A references B, B does not reference A. Prevents circular dependencies and scales linearly.
 - **Selective section routing** -- CONTEXT.md tables specify which sections of which files to load. Not the whole file. The section you need.
 - **Canonical sources** -- Every piece of information has one home. Other files point there. The moment the same rule exists in two files, they drift.
+- **Minimal stage scope** -- Each stage does ONE transformation. More stages with narrow scope beats fewer stages with broad scope.
 
 ### Quality
 
@@ -203,34 +204,34 @@ Every workspace follows 15 patterns defined in [`_core/CONVENTIONS.md`](_core/CO
 ### Onboarding
 
 - **Questionnaire design** -- Flat, all-at-once, system-level only. Configure the factory, not the product. Voice questions extract concrete examples, not descriptions.
-- **Shared constants** -- Code-producing workspaces define shared constant files that all outputs import from. Change a value once, it updates everywhere.
+- **Shared constants** -- Code-producing workbenches define shared constant files that all outputs import from. Change a value once, it updates everywhere.
 
 ## Contributing
 
-**New workspaces are the main contribution.** If you have a repeatable workflow that benefits from staged human-in-the-loop AI automation, it probably belongs here.
+**New workbenches are the main contribution.** If you have a repeatable workflow that benefits from staged human-in-the-loop AI automation, it probably belongs here.
 
-### How to contribute a workspace
+### How to contribute a workbench
 
 1. Fork the repo
-2. Use the workspace-builder to create your workspace:
+2. Use the workbench-builder to create your workbench:
    ```
-   cd workspaces/workspace-builder
+   cd workbenches/workbench-builder
    # Type "setup", describe your domain, walk through all 5 stages
    ```
-3. The builder outputs a validated workspace to `workspaces/[your-workspace]/`
-4. Test it: run `setup` in your new workspace, then run through the pipeline at least once
+3. The builder outputs a validated workbench to `workbenches/[your-workbench]/`
+4. Test it: run `setup` in your new workbench, then run through the pipeline at least once
 5. Open a PR
 
-### What makes a good workspace
+### What makes a good workbench
 
 - **Repeatable workflow.** Something you or others will run many times, not a one-off task.
 - **Clear stage boundaries.** Each stage produces a distinct artifact that a human might want to review or edit before proceeding.
 - **System-level setup.** The questionnaire configures the production system (identity, design, preferences), not a specific run.
-- **Follows ICM conventions.** The workspace-builder enforces this automatically. See [`_core/CONVENTIONS.md`](_core/CONVENTIONS.md) for the full spec.
+- **Follows ICM conventions.** The workbench-builder enforces this automatically. See [`_core/CONVENTIONS.md`](_core/CONVENTIONS.md) for the full spec.
 
 ### PR checklist
 
-- [ ] Workspace was built using the workspace-builder (not hand-assembled)
+- [ ] Workspace was built using the workbench-builder (not hand-assembled)
 - [ ] `setup` runs cleanly and all placeholders resolve
 - [ ] At least one end-to-end run completed successfully
 - [ ] No stage outputs committed (output folders should only contain `.gitkeep`)
@@ -241,8 +242,8 @@ Every workspace follows 15 patterns defined in [`_core/CONVENTIONS.md`](_core/CO
 
 ### Other contributions
 
-- **Bug fixes** to existing workspaces or conventions
-- **Improvements** to the workspace-builder itself
+- **Bug fixes** to existing workbenches or conventions
+- **Improvements** to the workbench-builder itself
 - **New patterns** for `_core/CONVENTIONS.md` (propose in an issue first)
 
 ## Origin

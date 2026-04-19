@@ -3,7 +3,7 @@
 <!-- Agent instructions: Read this file when the user types "setup". Ask ALL questions
      in a single conversational pass. The user should be able to answer everything in one
      message. Collect answers. Replace placeholders across the specified files. After all
-     replacements, verify no {{PLACEHOLDER}} patterns remain in the workspace. -->
+     replacements, verify no {{PLACEHOLDER}} patterns remain in the workbench. -->
 
 <!-- Questionnaire design rules:
      1. FLAT STRUCTURE: No category groupings. Just a numbered list of questions.
@@ -16,7 +16,7 @@
      5. SENSIBLE DEFAULTS: Every question should have a default or example so the user
         can skip what they don't care about.
      6. ASK ONCE, NEVER AGAIN: After setup, the user should never be asked these questions
-        again. The answers are baked into the workspace files permanently.
+        again. The answers are baked into the workbench files permanently.
      7. EXAMPLES OVER DESCRIPTIONS: For voice/style questions, ask for concrete examples
         (sentences that sound right, sentences that sound wrong, specific error patterns)
         rather than abstract descriptions. Examples are pattern-matchable. Descriptions
@@ -45,4 +45,4 @@
 
 [Tell the user what was configured and where to start.]
 
-After all replacements, scan the entire workspace for remaining `{{` patterns. If any remain, ask for the missing info.
+After all replacements, scan the entire workbench for remaining `{{` patterns. If any remain, ask for the missing info.

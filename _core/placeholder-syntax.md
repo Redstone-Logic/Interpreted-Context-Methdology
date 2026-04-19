@@ -25,7 +25,7 @@ These are literal strings in markdown files. They are not code variables. The on
 3. Each question specifies which files contain its placeholder
 4. The agent asks the questions conversationally, collecting answers
 5. The agent replaces every instance of each placeholder with the corresponding answer
-6. After all replacements, the agent scans the entire workspace for any remaining `{{` patterns
+6. After all replacements, the agent scans the entire workbench for any remaining `{{` patterns
 7. If any remain, the agent flags them and asks the user for the missing information
 8. Onboarding is complete only when zero placeholders remain
 
@@ -33,14 +33,14 @@ These are literal strings in markdown files. They are not code variables. The on
 
 ## Where Placeholders Can Appear
 
-Placeholders can appear in any markdown file within a workspace:
+Placeholders can appear in any markdown file within a workbench:
 - Brand vault files (voice-rules.md, identity.md)
 - Reference files (hook-system.md, design-system.md, etc.)
 - Shared files (platform-specs.md)
 - Stage CONTEXT.md files (only in Inputs table values, not in routing structure)
 
 Placeholders should NOT appear in:
-- CLAUDE.md files (these need to work before onboarding runs)
+- AGENTS.md files (these need to work before onboarding runs)
 - Top-level CONTEXT.md routing tables (these need to work before onboarding runs)
 - The questionnaire.md itself (the questions are the source, not the target)
 

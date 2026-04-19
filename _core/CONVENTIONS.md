@@ -1,6 +1,6 @@
-# MWP Conventions
+# ICM Conventions
 
-The rules for building and maintaining MWP workspaces. This is the canonical source. Every workspace follows these patterns.
+The rules for building and maintaining ICM workbenches. This is the canonical source. Every workbench follows these patterns.
 
 ---
 
@@ -9,20 +9,20 @@ The rules for building and maintaining MWP workspaces. This is the canonical sou
 Agents read down the layers. They stop as soon as they have what they need.
 
 ```
-Layer 0: CLAUDE.md           -> "Where am I?"            (always loaded, ~800 tokens)
+Layer 0: AGENTS.md           -> "Where am I?"            (always loaded, ~800 tokens)
 Layer 1: CONTEXT.md          -> "Where do I go?"          (read on entry, ~300 tokens)
 Layer 2: Stage CONTEXT.md    -> "What do I do?"            (read per-task, ~200-500 tokens)
 Layer 3: Reference material  -> "What rules apply?"        (loaded selectively, varies)
 Layer 4: Working artifacts   -> "What am I working with?"  (loaded selectively, varies)
 ```
 
-**Layer 0 -- CLAUDE.md** is auto-loaded by Claude Code into every conversation. It contains the folder map, naming conventions, and a routing table that points to workspace-level files. One per workspace.
+**Layer 0 -- AGENTS.md** is auto-loaded by Claude Code into every conversation. It contains the folder map, naming conventions, and a routing table that points to workbench-level files. One per workbench.
 
-**Layer 1 -- Top-level CONTEXT.md** is the first thing an agent reads when entering the workspace. It contains a task routing table that maps task types to specific stage folders. One per workspace.
+**Layer 1 -- Top-level CONTEXT.md** is the first thing an agent reads when entering the workbench. It contains a task routing table that maps task types to specific stage folders. One per workbench.
 
 **Layer 2 -- Stage CONTEXT.md files** live inside each stage folder. They contain the scope definition, what-to-load tables, and step-by-step process. One per stage. Layer 2 is the control point of the system -- its Inputs table determines exactly which files from Layers 3 and 4 the agent loads.
 
-**Layer 3 -- Reference material** is the persistent context: design systems, voice rules, build conventions, style guides, domain knowledge bundled as skill files. These files are configured once during workspace setup and remain stable across every run of the pipeline. They live in `references/` folders within stages, in workspace-level configuration folders (like `brand-vault/` or `design-system/`), in `shared/`, and in `skills/`. Larger reference collections can include their own CONTEXT.md routing files to help agents navigate within the collection.
+**Layer 3 -- Reference material** is the persistent context: design systems, voice rules, build conventions, style guides, domain knowledge bundled as skill files. These files are configured once during workbench setup and remain stable across every run of the pipeline. They live in `references/` folders within stages, in workbench-level configuration folders (like `brand-vault/` or `design-system/`), in `shared/`, and in `skills/`. Larger reference collections can include their own CONTEXT.md routing files to help agents navigate within the collection.
 
 **Layer 4 -- Working artifacts** are the per-run context: previous stage outputs, user-provided source material, anything specific to this particular run. These files are produced and consumed during execution and change every time the pipeline runs. They live in `output/` folders.
 
@@ -30,7 +30,7 @@ The distinction between Layers 3 and 4 matters because they require different th
 
 A rendering agent might only need Layers 0 through 2. A script-writing agent reads down to Layer 4 to access both voice rules (Layer 3) and source material (Layer 4). No agent reads everything.
 
-Every token of irrelevant context is a token of diluted attention. Workspace CLAUDE.md files should explicitly map each task to its minimal required files. Loading more context does not make output better. It makes it worse.
+Every token of irrelevant context is a token of diluted attention. Workspace AGENTS.md files should explicitly map each task to its minimal required files. Loading more context does not make output better. It makes it worse.
 
 ---
 
@@ -133,24 +133,24 @@ If you find yourself writing more than a one-sentence description in a CONTEXT.m
 
 Some stages require external tools (Node.js, LibreOffice, ffmpeg, etc.). Setup guides for these tools live in the `references/` folder of the stage that uses them (e.g., `stages/03-build/references/remotion-setup.md`).
 
-Setup guides are written for someone who has never installed the tool: what it is (one sentence), installation steps, how to verify it works, and how the workspace uses it.
+Setup guides are written for someone who has never installed the tool: what it is (one sentence), installation steps, how to verify it works, and how the workbench uses it.
 
 If a tool is needed by multiple stages, it can live in `shared/` instead. The `setup` onboarding process should check which tools are needed based on the user's answers and point them to the right setup guide.
 
-Note: When a workspace bundles skills (Pattern 9), many tools that would have needed separate prerequisites (scripts, libraries, utilities) come bundled inside the skill folder. Only tools that require system-level installation (Node.js, Python, LibreOffice) still need setup guides.
+Note: When a workbench bundles skills (Pattern 9), many tools that would have needed separate prerequisites (scripts, libraries, utilities) come bundled inside the skill folder. Only tools that require system-level installation (Node.js, Python, LibreOffice) still need setup guides.
 
 ---
 
 ## Trigger Keywords
 
-Every workspace recognizes these triggers:
+Every workbench recognizes these triggers:
 
-**`setup`** -- Starts the onboarding questionnaire. The agent reads `setup/questionnaire.md`, asks the questions conversationally, collects answers, replaces placeholders across the workspace, and verifies no placeholders remain.
+**`setup`** -- Starts the onboarding questionnaire. The agent reads `setup/questionnaire.md`, asks the questions conversationally, collects answers, replaces placeholders across the workbench, and verifies no placeholders remain.
 
 **`status`** -- Shows pipeline completion. The agent scans all `stages/*/output/` folders and renders an ASCII pipeline diagram:
 
 ```
-Pipeline Status: [workspace-name]
+Pipeline Status: [workbench-name]
 
   [01-stage-name]  ------>  [02-stage-name]  ------>  [03-stage-name]
      COMPLETE                  PENDING                  PENDING
@@ -159,7 +159,7 @@ Pipeline Status: [workspace-name]
 
 For each stage: if the output folder contains files (other than .gitkeep), the stage is COMPLETE and the filenames are listed. If the output folder is empty or contains only .gitkeep, the stage is PENDING.
 
-Workspaces can define additional trigger keywords in their own CLAUDE.md.
+Workspaces can define additional trigger keywords in their own AGENTS.md.
 
 ---
 
@@ -182,7 +182,7 @@ Onboarding questionnaires configure the production system, not a specific run. T
 3. **System-level only.** Questions configure things that stay the same across runs: identity, brand, design, tool preferences, default workflow. Per-run details (project name, topic, audience, scope) are collected conversationally at the start of each pipeline run by the entry stage.
 4. **Derive, do not ask.** If a field can be inferred from another answer, the agent fills it in. List derived fields under the question they depend on. Do not add a separate question.
 5. **Sensible defaults.** Every question should have a default or example so the user can skip what they do not care about.
-6. **Ask once, never again.** After setup, the user should never see these questions again. The answers are baked into the workspace files permanently.
+6. **Ask once, never again.** After setup, the user should never see these questions again. The answers are baked into the workbench files permanently.
 
 The questionnaire template at `_core/templates/questionnaire-template.md` encodes these rules.
 
@@ -193,7 +193,7 @@ The questionnaire template at `_core/templates/questionnaire-template.md` encode
 Workspaces can bundle Claude Code skills directly into a `skills/` folder. This gives agents domain-specific knowledge (APIs, best practices, code examples) without requiring the user to have the skills installed globally.
 
 ```
-workspace/
+workbench/
 ├── skills/
 │   ├── [skill-name]/          (copied from ~/.claude/skills/ or cloned from GitHub)
 │   │   ├── SKILL.md           (skill entry point)
@@ -203,12 +203,12 @@ workspace/
 │       └── SKILL.md
 ```
 
-**Discovery:** During workspace building (Stage 01), the builder identifies relevant skills by:
+**Discovery:** During workbench building (Stage 01), the builder identifies relevant skills by:
 1. Scanning `~/.claude/skills/` and `~/.agents/skills/` for locally installed skills
-2. Searching GitHub for skill repos matching the workspace domain (e.g., "remotion skill", "pptx skill")
+2. Searching GitHub for skill repos matching the workbench domain (e.g., "remotion skill", "pptx skill")
 3. Presenting candidates to the user for selection
 
-**Bundling:** Selected skills are copied (local) or cloned (GitHub) into the workspace's `skills/` folder during scaffolding (Stage 03). This makes the workspace self-contained.
+**Bundling:** Selected skills are copied (local) or cloned (GitHub) into the workbench's `skills/` folder during scaffolding (Stage 03). This makes the workbench self-contained.
 
 **Referencing:** Stage CONTEXT.md files reference skills in their Inputs table:
 
@@ -216,9 +216,9 @@ workspace/
 | Skill | `../../skills/[name]/SKILL.md` | Index, then load rules as needed | [What it provides] |
 ```
 
-Skills replace custom reference docs when an official skill covers the same ground. Keep workspace-specific files (design systems, brand config, build conventions) alongside skills, not inside them.
+Skills replace custom reference docs when an official skill covers the same ground. Keep workbench-specific files (design systems, brand config, build conventions) alongside skills, not inside them.
 
-**When NOT to bundle:** Do not bundle skills that are purely about Claude Code itself (e.g., skill-creator, mcp-builder). Only bundle skills that provide domain knowledge the workspace's agents need at runtime.
+**When NOT to bundle:** Do not bundle skills that are purely about Claude Code itself (e.g., skill-creator, mcp-builder). Only bundle skills that provide domain knowledge the workbench's agents need at runtime.
 
 ---
 
@@ -275,7 +275,7 @@ If any check fails, the agent revises before saving to output/.
 
 Content-producing stages should define what types of value their output can deliver. Before the main creative work begins (ideally at a checkpoint), the agent and human should agree on which value types this specific piece will hit. This prevents "interesting but doesn't DO anything" output.
 
-Value types are workspace-specific. A content workspace might use NOVEL, USABLE, QUESTION-GENERATING, INTERESTING. A course workspace might use TEACHES, PRACTICES, CHALLENGES. The framework is defined once in a reference file and used at every checkpoint.
+Value types are workbench-specific. A content workbench might use NOVEL, USABLE, QUESTION-GENERATING, INTERESTING. A course workbench might use TEACHES, PRACTICES, CHALLENGES. The framework is defined once in a reference file and used at every checkpoint.
 
 ---
 
@@ -293,7 +293,41 @@ Workspaces that produce code should define a constants pattern. Configurable val
 
 This is Pattern 5 (Canonical Sources) applied to code values. Without shared constants, the same hex code or font name is hardcoded in every output file. Changing the brand color means a find-and-replace across every file ever built.
 
-For non-code workspaces (content writing, course design), this pattern does not apply. Shared values live in reference docs instead.
+For non-code workbenches (content writing, course design), this pattern does not apply. Shared values live in reference docs instead.
+
+---
+
+## Pattern 16: Minimal Stage Scope
+
+Each stage does ONE transformation. More stages with narrow scope beats fewer stages with broad scope.
+
+**Why this matters:**
+- More stages = granular handoffs = each stage loads only what it needs
+- Agents over-scope when they try to do multiple transformations in one stage
+- "Do X and Y" in one stage = loads all context for both = high token usage
+
+**Stage count rules:**
+- One distinct transformation per stage (A→B→C = 3 stages)
+- One human handoff per stage
+- Split if a stage handles unknown/unbounded data
+
+**The test:** Can you describe this stage in one sentence? "Do X and Y" = two stages.
+
+---
+
+## Pattern 17: Appropriate Stage Count
+
+Stage count should match transformation complexity.
+
+**Workflow → Typical stages:**
+- **Simple (A→B):** 1-2 stages. One pass, one output.
+- **Moderate (A→C→B):** 3 stages. Distinct phases, one human handoff.
+- **Complex (A→D→C→B):** 4-5 stages. Multiple handoffs, clear boundaries.
+- **Multi-handoff:** 5+ stages. When multiple humans need to review between phases.
+
+**The test:** How many distinct transformations? Each = a stage. Also consider: Where does a human need to review/edit? Each = stage boundary.
+
+**Example:** script→spec→video (3 stages, each focused) beats script+spec+video in one stage (loads all references at once, over-scopes work).
 
 ---
 

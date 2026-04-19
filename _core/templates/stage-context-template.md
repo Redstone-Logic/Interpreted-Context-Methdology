@@ -23,7 +23,12 @@
 
      Too vague: "Generate ideas"
      Good: "Propose 3-5 concept angles, each as a single sentence. Tag each
-            with its value type and format." -->
+            with its value type and format."
+
+     **Stage scope:** If you're doing "X and Y" in one stage, split it.
+     One transformation per stage. Each stage's output feeds the next directly.
+
+     Delete this comment block before finalizing. -->
 
 1. Read the input artifact from the previous stage
 2. [Step two]
