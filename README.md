@@ -216,7 +216,7 @@ Every workbench follows 17 patterns defined in [`_core/CONVENTIONS.md`](_core/CO
 2. Use the workbench-builder to create your workbench:
    ```
    cd workbenches/workbench-builder
-   # Type "setup", describe your domain, walk through all 5 stages
+   # Type "setup", describe your domain, walk through the stages it defines
    ```
 3. The builder outputs a validated workbench to `workbenches/[your-workbench]/`
 4. Test it: run `setup` in your new workbench, then run through the pipeline at least once

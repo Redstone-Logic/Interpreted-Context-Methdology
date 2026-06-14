@@ -32,6 +32,8 @@ A rendering agent might only need Layers 0 through 2. A script-writing agent rea
 
 Every token of irrelevant context is a token of diluted attention. Workspace AGENTS.md files should explicitly map each task to its minimal required files. Loading more context does not make output better. It makes it worse.
 
+When the map itself grows, it can move out of AGENTS.md into a standalone `router.md` (see Pattern 19), and any long file can be sliced into Context Blocks (see Pattern 18) so agents load one section at a time instead of the whole file.
+
 ---
 
 ## Pattern 1: Stage Contracts
@@ -328,6 +330,63 @@ Stage count should match transformation complexity.
 **The test:** How many distinct transformations? Each = a stage. Also consider: Where does a human need to review/edit? Each = stage boundary.
 
 **Example:** script→spec→video (3 stages, each focused) beats script+spec+video in one stage (loads all references at once, over-scopes work).
+
+**Never advertise a fixed stage count.** Do not put "N-stage" in a workbench name or description, and do not keep a "Stage Count: N" line. Stating a number makes agents overfit and force that many stages even when fewer fit. Describe what the workbench does and let the count emerge from the transformations. The count should live in exactly one place: the actual numbered stage folders.
+
+---
+
+## Pattern 18: Context Blocks
+
+Pattern 4 routes to a section of a file. Context Blocks make those sections directly addressable so an agent loads ONLY the block it needs and never the whole file. This is intra-file lazy loading: the next level of "no agent reads everything."
+
+A Context Block is a titled unit of context (short code: CTX). Each block is fenced by paired HTML-comment markers with a descriptive slug:
+
+```
+<!-- ctx:business-files -->
+### Business Files
+...
+<!-- /ctx:business-files -->
+```
+
+The file opens with a Context Block Map: a small table (Code | Block | Jump for) that is the only part always read. To load a block, the agent:
+
+1. Scans the Context Block Map.
+2. Locates the marker (for example `grep -n "ctx:<slug>"`).
+3. Reads only that range (offset/limit, bounded by the close marker).
+
+Rules:
+- Slugs are descriptive, never numbers. A number invites overfitting and drifts as the file changes.
+- Use Context Blocks on any file long enough that loading the whole thing wastes tokens: routers, large reference docs, charters.
+- Pinned blocks: mark blocks that must survive context compaction (for example a "red lines" or "session start" block) so they are re-injected after the context is trimmed. Everything else stays unloaded until asked for.
+
+---
+
+## Pattern 19: The Map Can Be Its Own File
+
+Layer 0 (AGENTS.md) holds the map by default. When the map grows (routing tables, folder structure, where things live), extract it into a standalone `router.md`. AGENTS.md then keeps only the mission and the session-start rules plus one pointer: "for routing and where things live, read router.md."
+
+Why: AGENTS.md is auto-loaded into every turn, so the smaller it is, the cheaper every turn. The map is needed only when the agent has to decide where to go, so it belongs behind a pointer, not in the always-loaded file. Pair router.md with Pattern 18 so even the router is read a slice at a time.
+
+Keep the live registry (what is installed, health, managed by the workbench manager) separate from the map (where things are). They change for different reasons.
+
+---
+
+## Pattern 20: Write It Down (No Mental Notes)
+
+State lives in files, never in the agent's head. An agent that "remembers" across steps is an agent that loses work when the context resets. After any decision, update the relevant file and read it back from disk to confirm, rather than trusting memory.
+
+This is Pattern 2 (handoffs via output folders) applied to thinking: if it matters, it is on disk. A fresh agent, or the same agent after compaction, should be able to reconstruct the full state by reading files alone. (Borrowed from the OpenClaw workspace model.)
+
+---
+
+## Pattern 21: Red Lines and Gates
+
+Every workspace should state, in plain language, what the agent must NOT do and which actions require a checkpoint before acting. (Borrowed from OpenClaw: its TOOLS.md lists what the agent should not attempt; its AGENTS.md keeps a short red-lines list.)
+
+- Red lines: hard limits the agent never crosses (for example: never read or surface secrets folders, never push to the default branch without approval).
+- Gates: risky or irreversible actions that require a human confirm first (deploys, deletes, outbound messages, spending).
+
+Keep red lines short and put them in a pinned Context Block (Pattern 18) so they survive compaction. A gate is cheap insurance: the agent pauses, states what it is about to do, and waits for a yes.
 
 ---
 
