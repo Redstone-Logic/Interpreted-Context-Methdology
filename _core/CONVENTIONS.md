@@ -34,6 +34,10 @@ Every token of irrelevant context is a token of diluted attention. Workspace AGE
 
 When the map itself grows, it can move out of AGENTS.md into a standalone `router.md` (see Pattern 19), and any long file can be sliced into Context Blocks (see Pattern 18) so agents load one section at a time instead of the whole file.
 
+Do not re-read what you already have. Use the context provided at session start first. Reread a file only when: (1) the user asks, (2) the provided context is missing something you need, or (3) you need a deeper follow-up read beyond what was provided. Re-reading already-loaded files burns tokens for nothing.
+
+Files can declare when they matter. A `read_when:` hint in a file's frontmatter (a short list of situations) lets an agent decide whether to open the file at all, without reading its body. The same idea applies per block through the Context Block Map (Pattern 18). (Both borrowed from the OpenClaw workspace model.)
+
 ---
 
 ## Pattern 1: Stage Contracts
@@ -377,6 +381,8 @@ State lives in files, never in the agent's head. An agent that "remembers" acros
 
 This is Pattern 2 (handoffs via output folders) applied to thinking: if it matters, it is on disk. A fresh agent, or the same agent after compaction, should be able to reconstruct the full state by reading files alone. (Borrowed from the OpenClaw workspace model.)
 
+Write lessons back to the doc that owns them. When you learn something durable, update the canonical file (AGENTS.md, TOOLS.md, the relevant skill, or this conventions file). When you make a mistake, document it so future agents do not repeat it. Docs improve by accumulation, not by memory (see Pattern 14).
+
 ---
 
 ## Pattern 21: Red Lines and Gates
@@ -385,8 +391,11 @@ Every workspace should state, in plain language, what the agent must NOT do and 
 
 - Red lines: hard limits the agent never crosses (for example: never read or surface secrets folders, never push to the default branch without approval).
 - Gates: risky or irreversible actions that require a human confirm first (deploys, deletes, outbound messages, spending).
+- Prefer recoverable deletes: move files to a trash or `.debris/` folder instead of `rm`. Recoverable beats gone forever.
 
 Keep red lines short and put them in a pinned Context Block (Pattern 18) so they survive compaction. A gate is cheap insurance: the agent pauses, states what it is about to do, and waits for a yes.
+
+Context-scoped loading: some context is private. Personal or sensitive material (secrets, a personal long-term memory file) should load only in a main or private session, never in shared or multi-party contexts (group chats, sessions with other people). Scope what loads to who is in the room. (Borrowed from the OpenClaw workspace model.)
 
 ---
 
